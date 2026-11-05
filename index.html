@@ -1,14 +1,64 @@
 <!DOCTYPE html>
+    <div id="fileEditorModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-theme-surface w-full max-w-2xl rounded-2xl border border-theme-border shadow-2xl p-5 space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between border-b border-theme-border pb-3">
+                <div class="flex items-center gap-2 text-theme-text font-semibold text-sm">
+                    <i class="fa-solid fa-pen-to-square text-blue-400"></i>
+                    <span id="editorFileName">editor.txt</span>
+                </div>
+                <button onclick="closeFileEditorModal()" class="text-theme-muted hover:text-theme-text">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <textarea id="editorTextarea" class="w-full flex-1 bg-theme-bg border border-theme-border rounded-xl p-3 text-xs font-mono text-theme-text outline-none resize-none leading-relaxed h-80"></textarea>
+            <div class="flex justify-end gap-2 pt-2 border-t border-theme-border">
+                <button onclick="closeFileEditorModal()" class="px-3 py-1.5 rounded-lg bg-theme-elevated hover:bg-theme-border text-theme-text text-xs">Hủy</button>
+                <button onclick="saveAndDownloadFromEditor()" class="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium">Lưu &amp; Tải về</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GITHUB LOGIN POPUP MODAL -->
+    <div id="githubModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-theme-surface w-full max-w-sm rounded-xl border border-theme-border shadow-2xl p-5 space-y-4 text-left">
+            <div class="flex items-center justify-between border-b border-theme-border pb-3">
+                <div class="flex items-center gap-2 text-theme-text font-semibold text-sm">
+                    <i class="fa-brands fa-github text-base"></i>
+                    <span data-i18n="githubModalTitle">Sign in with GitHub</span>
+                </div>
+                <button onclick="closeGitHubModal()" class="text-theme-muted hover:text-theme-text">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-theme-muted mb-1 font-medium" data-i18n="githubInputLabel">GitHub Username or Token:</label>
+                    <input type="text" id="githubUserInput" placeholder="e.g. ANHDADENSIGMA or octocat" class="w-full bg-theme-bg border border-theme-border rounded-lg px-3 py-2 text-xs text-theme-text outline-none font-mono focus:border-blue-500">
+                    <p class="text-[11px] text-theme-muted mt-1 leading-normal" data-i18n="githubHelpText">Enter your public username or Personal Access Token to load your GitHub profile.</p>
+                </div>
+                <button onclick="quickFillGithub('ANHDADENSIGMA')" class="w-full py-1.5 px-2.5 rounded-lg bg-theme-elevated hover:bg-theme-border text-blue-400 border border-theme-border text-[11px] flex items-center justify-center gap-1.5">
+                    <i class="fa-brands fa-github"></i> D
 <html lang="en" data-theme="light" style="--font-size-base: 14px;"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-signin-client_id" content="561562510968-rhc266s9gonkf6306srvoasa1kkgkro0.apps.googleusercontent.com">
     <title>TPearls AI - Intelligent Workspace</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Safe early stub for Google GSI onload callback -->
+    <script>
+        window.initGoogleAuthClient = function() {
+            if (typeof window.__realInitGoogleAuthClient === 'function') {
+                window.__realInitGoogleAuthClient();
+            } else {
+                window.__googleGsiReady = true;
+            }
+        };
+    </script>
     <!-- Google Identity Services for real Google OAuth -->
-    <script src="https://accounts.google.com/gsi/client" async="" defer=""></script>
+    <script src="https://accounts.google.com/gsi/client" async defer onload="initGoogleAuthClient()"></script>
     <!-- CodeMirror for bulletproof, perfectly aligned code editing with syntax colors -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
@@ -369,15 +419,7 @@
                 </button>
             </div>
             
-            <div id="historyList" class="flex-1 overflow-y-auto p-2 space-y-1 text-xs"><div class="group flex items-center justify-between p-2 rounded-lg cursor-pointer transition bg-theme-elevated text-theme-text font-medium border border-theme-border">
-                    <div class="flex items-center gap-2 truncate flex-1 min-w-0 pr-1">
-                        <i class="fa-regular fa-message text-[11px]"></i>
-                        <span class="truncate text-xs">New conversation</span>
-                    </div>
-                    <button onclick="event.stopPropagation(); deleteSession('sess_1793887045562')" title="Delete" class="opacity-0 group-hover:opacity-100 p-1 hover:text-rose-400 transition text-[11px]">
-                        <i class="fa-regular fa-trash-can"></i>
-                    </button>
-                </div></div>
+            <div id="historyList" class="flex-1 overflow-y-auto p-2 space-y-1 text-xs"></div>
 
             <div class="p-2 border-t border-theme-border">
                 <button onclick="createNewChatSession()" class="w-full py-2 px-3 rounded-lg bg-theme-elevated hover:bg-theme-border text-theme-text text-xs font-medium flex items-center justify-center gap-1.5 transition border border-theme-border">
@@ -697,8 +739,8 @@
                                 </div>
 
                                 <!-- CODE STUDIO: FLAWLESS ALIGNMENT POWERED BY CODEMIRROR -->
-                                <div id="codeEditorWrapper" class="flex-1 relative overflow-hidden bg-[#090d16]">
-                                    <textarea id="studioCodeEditor" class="hidden" style="display: none;"></textarea><div class="CodeMirror cm-s-material-darker CodeMirror-wrap" translate="no" style="clip-path: inset(0px);"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 0px; left: 0px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; min-height: 1em; outline: none;"></textarea></div><div class="CodeMirror-vscrollbar" tabindex="-1" cm-not-content="true" style="display: block; bottom: 0px;"><div style="min-width: 1px; height: 231px;"></div></div><div class="CodeMirror-hscrollbar" tabindex="-1" cm-not-content="true"><div style="height: 100%; min-height: 1px; width: 0px;"></div></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 0px; padding-right: 0px; padding-bottom: 0px;"><div style="position: relative;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"></div><div class="CodeMirror-measure"><pre class="CodeMirror-line" role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-meta">&lt;!DOCTYPE html&gt;</span></span></pre></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-cursors"></div><div class="CodeMirror-code" role="presentation"></div></div></div></div></div><div style="position: absolute; height: 50px; width: 1px; border-bottom: 0px solid transparent;"></div><div class="CodeMirror-gutters" style="left: 0px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 1px;"></div></div></div></div><div class="CodeMirror cm-s-material-darker CodeMirror-wrap" translate="no" style="clip-path: inset(0px);"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 3.99306px; left: 37.9861px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; min-height: 1em; outline: none;"></textarea></div><div class="CodeMirror-vscrollbar" tabindex="-1" cm-not-content="true" style="display: block; bottom: 0px;"><div style="min-width: 1px; height: 829px;"></div></div><div class="CodeMirror-hscrollbar" tabindex="-1" cm-not-content="true"><div style="height: 100%; min-height: 1px; width: 0px;"></div></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 34px; padding-right: 4px; padding-bottom: 0px; margin-bottom: -4px; border-right-width: 46px; min-height: 828px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-cursors"><div class="CodeMirror-cursor" style="left: 3.99306px; top: 0px; height: 20px;">&nbsp;</div></div><div class="CodeMirror-code" role="presentation" style=""><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-meta">&lt;!DOCTYPE html&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">2</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">html</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">3</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">head</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">4</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">style</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">5</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-tag">body</span> { <span class="cm-property">font-family</span>: <span class="cm-atom">sans-serif</span>; <span class="cm-property">display</span>: <span class="cm-atom">flex</span>; <span class="cm-property">align-items</span>: <span class="cm-atom">center</span>; <span class="cm-property">justify-content</span>: <span class="cm-atom">center</span>; <span class="cm-property">height</span>: <span class="cm-number">100vh</span>; <span class="cm-property">margin</span>: <span class="cm-number">0</span>; <span class="cm-property">background</span>: <span class="cm-atom">#0f172a</span>; <span class="cm-property">color</span>: <span class="cm-atom">#38bdf8</span>; }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">6</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-qualifier">.card</span> { <span class="cm-property">text-align</span>: <span class="cm-atom">center</span>; <span class="cm-property">padding</span>: <span class="cm-number">2.5rem</span>; <span class="cm-property">border</span>: <span class="cm-number">1px</span> <span class="cm-atom">solid</span> <span class="cm-atom">#1e293b</span>; <span class="cm-property">border-radius</span>: <span class="cm-number">1rem</span>; <span class="cm-property">background</span>: <span class="cm-variable cm-callee">rgba</span>(<span class="cm-number">30</span>, <span class="cm-number">41</span>, <span class="cm-number">59</span>, <span class="cm-number">0.5</span>); <span class="cm-property">box-shadow</span>: <span class="cm-number">0</span> <span class="cm-number">10px</span> <span class="cm-number">25px</span> <span class="cm-variable cm-callee">rgba</span>(<span class="cm-number">0</span>,<span class="cm-number">0</span>,<span class="cm-number">0</span>,<span class="cm-number">0.5</span>); }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">7</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-tag">button</span> { <span class="cm-property">background</span>: <span class="cm-atom">#2563eb</span>; <span class="cm-property">color</span>: <span class="cm-atom">#fff</span>; <span class="cm-property">border</span>: <span class="cm-number">0</span>; <span class="cm-property">padding</span>: <span class="cm-number">0.7rem</span> <span class="cm-number">1.5rem</span>; <span class="cm-property">border-radius</span>: <span class="cm-number">0.5rem</span>; <span class="cm-property">cursor</span>: <span class="cm-atom">pointer</span>; <span class="cm-property">font-weight</span>: <span class="cm-atom">bold</span>; <span class="cm-property">transition</span>: <span class="cm-number">0.2s</span>; }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">8</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-tag">button</span>:<span class="cm-variable-3">hover</span> { <span class="cm-property">background</span>: <span class="cm-atom">#1d4ed8</span>; }</span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">9</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag">style</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">10</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag">head</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">11</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">body</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">12</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">div</span> <span class="cm-attribute">class</span>=<span class="cm-string">"card"</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">13</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">h2</span><span class="cm-tag cm-bracket">&gt;</span>TPearls Online Code Runner<span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag">h2</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">14</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">p</span><span class="cm-tag cm-bracket">&gt;</span>Edit HTML, CSS, or JS in the editor and click Run Online!<span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag">p</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">15</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp; &nbsp; &nbsp;<span class="cm-tag cm-bracket">&lt;</span><span class="cm-tag">button</span> <span class="cm-attribute">onclick</span>=<span class="cm-string">"alert('TPearls Studio Code Runner Works!')"</span><span class="cm-tag cm-bracket">&gt;</span>Click Me<span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag">button</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">16</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"> &nbsp; &nbsp;<span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag">div</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">17</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag">body</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">18</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span class="cm-tag cm-bracket">&lt;/</span><span class="cm-tag">html</span><span class="cm-tag cm-bracket">&gt;</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 46px; width: 1px; border-bottom: 0px solid transparent; top: 828px;"></div><div class="CodeMirror-gutters" style="left: 0.0069408px; height: 874px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 29px;"></div></div></div></div><div class="CodeMirror cm-s-material-darker" translate="no" style="clip-path: inset(0px);"><div style="overflow: hidden; position: relative; width: 3px; height: 0px; top: 3.99306px; left: 37.9861px;"><textarea autocorrect="off" autocapitalize="off" spellcheck="false" tabindex="0" style="position: absolute; bottom: -1em; padding: 0px; width: 1000px; height: 1em; min-height: 1em; outline: none;"></textarea></div><div class="CodeMirror-vscrollbar" tabindex="-1" cm-not-content="true" style="bottom: 0px;"><div style="min-width: 1px; height: 0px;"></div></div><div class="CodeMirror-hscrollbar" tabindex="-1" cm-not-content="true" style="right: 0px; left: 34px;"><div style="height: 100%; min-height: 1px; width: 0px;"></div></div><div class="CodeMirror-scrollbar-filler" cm-not-content="true"></div><div class="CodeMirror-gutter-filler" cm-not-content="true"></div><div class="CodeMirror-scroll" tabindex="-1"><div class="CodeMirror-sizer" style="margin-left: 34px; min-width: 6.99306px; padding-right: 0px; padding-bottom: 0px; margin-bottom: -4px; border-right-width: 46px; min-height: 28px;"><div style="position: relative; top: 0px;"><div class="CodeMirror-lines" role="presentation"><div role="presentation" style="position: relative; outline: none;"><div class="CodeMirror-measure"><span><span>​</span>x</span></div><div class="CodeMirror-measure"></div><div style="position: relative; z-index: 1;"></div><div class="CodeMirror-cursors" style="visibility: hidden;"><div class="CodeMirror-cursor" style="left: 3.99306px; top: 0px; height: 20px;">&nbsp;</div></div><div class="CodeMirror-code" role="presentation" style=""><div style="position: relative;"><div class="CodeMirror-gutter-wrapper" aria-hidden="true" style="left: -33.9931px;"><div class="CodeMirror-linenumber CodeMirror-gutter-elt" style="left: 0px; width: 21px;">1</div></div><pre class=" CodeMirror-line " role="presentation"><span role="presentation" style="padding-right: 0.1px;"><span cm-text="">​</span></span></pre></div></div></div></div></div></div><div style="position: absolute; height: 46px; width: 1px; border-bottom: 0px solid transparent; top: 28px;"></div><div class="CodeMirror-gutters" style="left: 0px; height: 74px;"><div class="CodeMirror-gutter CodeMirror-linenumbers" style="width: 29px;"></div></div></div></div>
+                                <div id="codeEditorWrapper" class="flex-1 relative overflow-hidden bg-[#090d16] cursor-text" onclick="focusStudioEditor()">
+                                    <textarea id="studioCodeEditor" class="hidden"></textarea>
                                 </div>
                             </div>
 
@@ -749,92 +791,8 @@
                                 <div class="p-2.5 rounded-xl bg-theme-elevated border border-theme-border text-theme-muted text-[11px]">
                                     💡 Ask me to fix bugs, refactor your code, explain complex algorithms, or write new features.
                                 </div>
-                            <div class="p-2 rounded-xl bg-blue-600 text-white ml-auto max-w-[85%] text-[11px] leading-relaxed">Identify all bugs, syntax errors and issues in this code and provide the fixed code.</div><div class="p-2.5 rounded-xl bg-theme-elevated border border-theme-border text-theme-text mr-auto max-w-[95%] text-[11px] space-y-2">
-                    <div class="leading-relaxed whitespace-pre-wrap">**What was broken / missing**
+                            </div>
 
-| # | Problem | Why it matters |
-|---|---------|----------------|
-| 1 | **Wrong OAuth endpoint URLs** – the code points to `https://google.com` and `https://github.com`. &nbsp;Both services require their dedicated auth URLs (`accounts.google.com/o/oauth2/v2/auth` and `github.com/login/oauth/authorize`). |
-| 2 | **Google redirect‑URI was the page’s current path (including hash)** – if the page already had a hash (from a previous Google response) the redirect‑URI becomes malformed. Using `window.location.origin + window.location.pathname` fixes this. |
-| 3 | **Missing protocol in `CURRENT_URL` when it contains a hash** – the hash is already stripped by the expression, so the redirect‑URI is clean; otherwise the code would have mixed `#!/` with the OAuth redirect. |
-| 4 | **No error handling for the OAuth response** – the script assumed a token/hash or code will always be present. Adding a simple guard prevents accidental `undefined` or empty displays. |
-| 5 | **Code readability** – a few comments and a few needless `var`‑style declarations keep the logic clear. |
-
----
-
-### Fixed code
-
-```html
-&lt;!DOCTYPE html&gt;
-&lt;html lang="vi"&gt;
-&lt;head&gt;
-    &lt;meta charset="UTF-8"&gt;
-    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
-    &lt;title&gt;Test OAuth App Google &amp; GitHub&lt;/title&gt;
-    &lt;style&gt;
-        body {
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f5f5f5;
-            margin: 0;
-        }
-        .box {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 320px;
-        }
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            color: white;
-            text-decoration: none;
-            box-sizing: border-box;
-        }
-        .btn-google { background-color: #df4a32; }
-        .btn-github { background-color: #24292e; }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e8f5e9;
-            border: 1px solid #c8e6c9;
-            border-radius: 5px;
-            word-break: break-all;
-            text-align: left;
-            font-size: 14px;
-        }
-    &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-&lt;div class="box"&gt;
-    &lt;h3&gt;Kiểm Thử OAuth App&lt;/h3&gt;
-    &lt;p&gt;Nhấn vào để test cấu hình Client ID của bạn&lt;/p&gt;
-
-    &lt;!-- Button ø Google --&gt;
-    &lt;button class="btn btn-google" onclick="testGoogle()"&gt;Test Đăng Nhập Google&lt;/button&gt;
-
-    &lt;!-- Button ø GitHub --&gt;
-    &lt;button class="btn btn-github" onclick="testGitHub()"&gt;Test Đăng Nhập GitHub&lt;/button&gt;
-
-    &lt;!-- Nơi hiển thị kết quả --&gt;
-    &lt;div id="resultBox" style="display:none;"&gt;
-        &lt;h4&gt;Kết quả nhận được:&lt;/h4&gt;
-        &lt;div id="textResult" class="result"&gt;&lt;/div&gt;
-    &lt;/div</div>
-                    
-                </div></div>
                             <div class="p-2 bg-theme-elevated border-t border-theme-border grid grid-cols-2 gap-1.5 shrink-0">
                                 <button onclick="codeAiQuickAction('fix')" class="p-1.5 rounded-lg bg-theme-surface hover:bg-theme-border border border-theme-border text-[11px] text-theme-text text-left font-medium">🐛 Debug &amp; Fix</button>
                                 <button onclick="codeAiQuickAction('optimize')" class="p-1.5 rounded-lg bg-theme-surface hover:bg-theme-border border border-theme-border text-[11px] text-theme-text text-left font-medium">⚡ Optimize Speed</button>
@@ -1449,46 +1407,7 @@
         </div>
     </div>
 
-    <!-- FILE EDITOR MODAL -->
-    <div id="fileEditorModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-theme-surface w-full max-w-2xl rounded-2xl border border-theme-border shadow-2xl p-5 space-y-4 max-h-[90vh] flex flex-col">
-            <div class="flex items-center justify-between border-b border-theme-border pb-3">
-                <div class="flex items-center gap-2 text-theme-text font-semibold text-sm">
-                    <i class="fa-solid fa-pen-to-square text-blue-400"></i>
-                    <span id="editorFileName">editor.txt</span>
-                </div>
-                <button onclick="closeFileEditorModal()" class="text-theme-muted hover:text-theme-text">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-            </div>
-            <textarea id="editorTextarea" class="w-full flex-1 bg-theme-bg border border-theme-border rounded-xl p-3 text-xs font-mono text-theme-text outline-none resize-none leading-relaxed h-80"></textarea>
-            <div class="flex justify-end gap-2 pt-2 border-t border-theme-border">
-                <button onclick="closeFileEditorModal()" class="px-3 py-1.5 rounded-lg bg-theme-elevated hover:bg-theme-border text-theme-text text-xs">Hủy</button>
-                <button onclick="saveAndDownloadFromEditor()" class="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium">Lưu &amp; Tải về</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- GITHUB LOGIN POPUP MODAL -->
-    <div id="githubModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-theme-surface w-full max-w-sm rounded-xl border border-theme-border shadow-2xl p-5 space-y-4 text-left">
-            <div class="flex items-center justify-between border-b border-theme-border pb-3">
-                <div class="flex items-center gap-2 text-theme-text font-semibold text-sm">
-                    <i class="fa-brands fa-github text-base"></i>
-                    <span data-i18n="githubModalTitle">Sign in with GitHub</span>
-                </div>
-                <button onclick="closeGitHubModal()" class="text-theme-muted hover:text-theme-text">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-            </div>
-            <div class="space-y-3 text-xs">
-                <div>
-                    <label class="block text-theme-muted mb-1 font-medium" data-i18n="githubInputLabel">GitHub Username or Token:</label>
-                    <input type="text" id="githubUserInput" placeholder="e.g. ANHDADENSIGMA or octocat" class="w-full bg-theme-bg border border-theme-border rounded-lg px-3 py-2 text-xs text-theme-text outline-none font-mono focus:border-blue-500">
-                    <p class="text-[11px] text-theme-muted mt-1 leading-normal" data-i18n="githubHelpText">Enter your public username or Personal Access Token to load your GitHub profile.</p>
-                </div>
-                <button onclick="quickFillGithub('ANHDADENSIGMA')" class="w-full py-1.5 px-2.5 rounded-lg bg-theme-elevated hover:bg-theme-border text-blue-400 border border-theme-border text-[11px] flex items-center justify-center gap-1.5">
-                    <i class="fa-brands fa-github"></i> Dùng nhanh tài khoản <strong>ANHDADENSIGMA</strong>
+    <!-- FILE EDITOR MODAL -->ùng nhanh tài khoản <strong>ANHDADENSIGMA</strong>
                 </button>
             </div>
             <div class="flex justify-end gap-2 pt-2 border-t border-theme-border">
@@ -2331,33 +2250,38 @@
         const GOOGLE_CLIENT_ID = '561562510968-rhc266s9gonkf6306srvoasa1kkgkro0.apps.googleusercontent.com';
         let googleTokenClient = null;
 
-        function initGoogleAuthClient() {
-            if (window.google && window.google.accounts) {
-                try {
-                    // 1. Initialize Standard Google Credential Handler (JWT)
+        window.__realInitGoogleAuthClient = function() {
+            if (!window.google || !window.google.accounts) return;
+            try {
+                // 1. Initialize Standard Google Credential Handler (JWT) with explicit client_id
+                if (window.google.accounts.id) {
                     window.google.accounts.id.initialize({
                         client_id: GOOGLE_CLIENT_ID,
                         callback: handleGoogleCredentialResponse,
                         auto_select: false,
                         cancel_on_tap_outside: true
                     });
-
-                    // 2. Initialize OAuth2 Token Client for Popup Flow
-                    if (window.google.accounts.oauth2) {
-                        googleTokenClient = window.google.accounts.oauth2.initTokenClient({
-                            client_id: GOOGLE_CLIENT_ID,
-                            scope: 'email profile openid',
-                            callback: async (tokenResponse) => {
-                                if (tokenResponse && tokenResponse.access_token) {
-                                    await fetchGoogleUserInfo(tokenResponse.access_token);
-                                }
-                            }
-                        });
-                    }
-                } catch (e) {
-                    console.warn('Google GSI init warning:', e);
                 }
+
+                // 2. Initialize OAuth2 Token Client for Popup Flow
+                if (window.google.accounts.oauth2) {
+                    googleTokenClient = window.google.accounts.oauth2.initTokenClient({
+                        client_id: GOOGLE_CLIENT_ID,
+                        scope: 'email profile openid',
+                        callback: async (tokenResponse) => {
+                            if (tokenResponse && tokenResponse.access_token) {
+                                await fetchGoogleUserInfo(tokenResponse.access_token);
+                            }
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('Google GSI init warning:', e);
             }
+        };
+
+        function initGoogleAuthClient() {
+            window.__realInitGoogleAuthClient();
         }
 
         function handleGoogleCredentialResponse(response) {
@@ -3061,6 +2985,13 @@ Deliver high quality prose or recommendations. Include an HTML block if providin
             // Nạp lại Code Studio riêng tư của tài khoản mới
             loadCurrentCodeContent();
 
+            // Nạp lại Code AI Copilot Chat riêng tư của tài khoản mới
+            loadCurrentCodeAiChat();
+
+            // Dọn sạch khung hiển thị chat chính trước khi tải các phiên mới
+            const chatStream = document.getElementById('chatStream');
+            if (chatStream) chatStream.innerHTML = '';
+
             // Tải lại lịch sử chat và kho tệp theo đúng tài khoản mới
             loadGeneratedFilesFromStorage();
             loadSessionsFromStorage();
@@ -3106,6 +3037,25 @@ Deliver high quality prose or recommendations. Include an HTML block if providin
             localStorage.setItem(chatKey, chatStream.innerHTML);
         }
 
+        function saveCurrentCodeAiChat() {
+            const chatStream = document.getElementById('codeAiChatStream');
+            if (!chatStream) return;
+            const chatKey = getStorageKey('son_code_ai_chat');
+            localStorage.setItem(chatKey, chatStream.innerHTML);
+        }
+
+        function loadCurrentCodeAiChat() {
+            const chatStream = document.getElementById('codeAiChatStream');
+            if (!chatStream) return;
+            const chatKey = getStorageKey('son_code_ai_chat');
+            const savedChat = localStorage.getItem(chatKey);
+            chatStream.innerHTML = savedChat || `
+                <div class="p-2.5 rounded-xl bg-theme-elevated border border-theme-border text-theme-muted text-[11px]">
+                    💡 Ask me to fix bugs, refactor your code, explain complex algorithms, or write new features.
+                </div>
+            `;
+        }
+
         function saveCurrentCodeContent() {
             const key = getStorageKey('son_code_content');
             const val = getStudioCodeValue();
@@ -3127,7 +3077,9 @@ Deliver high quality prose or recommendations. Include an HTML block if providin
         function saveAndApplyProfile(profile) {
             // Lưu dữ liệu tài khoản cũ trước khi đổi
             saveCurrentDocContent();
+            saveCurrentDocChat();
             saveCurrentCodeContent();
+            saveCurrentCodeAiChat();
 
             state.user = profile;
             localStorage.setItem('son_user_profile', JSON.stringify(profile));
@@ -3139,7 +3091,9 @@ Deliver high quality prose or recommendations. Include an HTML block if providin
         function handleSignOut() {
             // Lưu dữ liệu trước khi đăng xuất
             saveCurrentDocContent();
+            saveCurrentDocChat();
             saveCurrentCodeContent();
+            saveCurrentCodeAiChat();
 
             state.user = null;
             localStorage.removeItem('son_user_profile');
@@ -4185,27 +4139,77 @@ Requirements:
         // CODE STUDIO & CODEMIRROR RUNNER HANDLERS
         // ==========================================
         function initStudioCodeMirror() {
-            if (!studioCodeMirror && window.CodeMirror) {
-                const textarea = document.getElementById('studioCodeEditor');
-                if (!textarea) return;
+            const wrapper = document.getElementById('codeEditorWrapper');
+            if (!wrapper) return;
 
-                studioCodeMirror = window.CodeMirror(document.getElementById('codeEditorWrapper'), {
-                    value: textarea.value || `<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: #38bdf8; }\n        .card { text-align: center; padding: 2.5rem; border: 1px solid #1e293b; border-radius: 1rem; background: rgba(30, 41, 59, 0.5); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }\n        button { background: #2563eb; color: #fff; border: 0; padding: 0.7rem 1.5rem; border-radius: 0.5rem; cursor: pointer; font-weight: bold; transition: 0.2s; }\n        button:hover { background: #1d4ed8; }\n    </style>\n</head>\n<body>\n    <div class="card">\n        <h2>TPearls Online Code Runner</h2>\n        <p>Edit HTML, CSS, or JS in the editor and click Run Online!</p>\n        <button onclick="alert('TPearls Studio Code Runner Works!')">Click Me</button>\n    </div>\n</body>\n</html>`,
-                    mode: 'htmlmixed',
-                    theme: 'material-darker',
-                    lineNumbers: true,
-                    lineWrapping: true,
-                    tabSize: 4
-                });
+            // If CodeMirror is already mounted, refresh and focus
+            if (studioCodeMirror) {
+                setTimeout(() => {
+                    studioCodeMirror.refresh();
+                }, 50);
+                return;
+            }
 
-                studioCodeMirror.on('change', () => {
-                    const code = studioCodeMirror.getValue();
-                    const counter = document.getElementById('codeCharCounter');
-                    if (counter) counter.textContent = `${code.length} chars`;
-                    saveCurrentCodeContent();
-                });
-            } else if (studioCodeMirror) {
-                setTimeout(() => studioCodeMirror.refresh(), 50);
+            if (!window.CodeMirror) {
+                console.warn('CodeMirror library not loaded yet');
+                return;
+            }
+
+            // Clean up any stale duplicate DOM elements inside wrapper
+            const existingInstances = wrapper.querySelectorAll('.CodeMirror');
+            existingInstances.forEach(el => el.remove());
+
+            const key = getStorageKey('son_code_content');
+            const savedCode = localStorage.getItem(key);
+            const initialCode = (savedCode !== null && savedCode.trim().length > 0) ? savedCode : `<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0f172a; color: #38bdf8; }
+        .card { text-align: center; padding: 2.5rem; border: 1px solid #1e293b; border-radius: 1rem; background: rgba(30, 41, 59, 0.5); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        button { background: #2563eb; color: #fff; border: 0; padding: 0.7rem 1.5rem; border-radius: 0.5rem; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>TPearls Online Code Runner</h2>
+        <p>Edit HTML, CSS, or JS in the editor and click Run Online!</p>
+        <button onclick="alert('TPearls Studio Code Runner Works!')">Click Me</button>
+    </div>
+</body>
+</html>`;
+
+            studioCodeMirror = window.CodeMirror(wrapper, {
+                value: initialCode,
+                mode: 'htmlmixed',
+                theme: 'material-darker',
+                lineNumbers: true,
+                lineWrapping: true,
+                tabSize: 4,
+                indentUnit: 4,
+                autofocus: false,
+                viewportMargin: Infinity
+            });
+
+            const updateCharCount = () => {
+                const code = studioCodeMirror.getValue();
+                const counter = document.getElementById('codeCharCounter');
+                if (counter) counter.textContent = `${code.length} chars`;
+                saveCurrentCodeContent();
+            };
+
+            studioCodeMirror.on('change', updateCharCount);
+            updateCharCount();
+
+            setTimeout(() => {
+                studioCodeMirror.refresh();
+            }, 100);
+        }
+
+        function focusStudioEditor() {
+            if (studioCodeMirror) {
+                studioCodeMirror.focus();
             }
         }
 
@@ -4343,25 +4347,55 @@ Always output fixed or updated code in standard markdown code blocks (\`\`\`html
 
                 const result = await dispatchWorkspaceAiQuery(combinedPrompt, [], 'auto');
 
-                aiBubble.innerHTML = `<div class="leading-relaxed whitespace-pre-wrap">${escapeHtml(result)}</div>`;
-
-                // If code block exists in response, offer in-place fix
+                // If code block exists in response, do NOT automatically overwrite user's editor!
                 const codeMatch = /```(?:[a-zA-Z0-9_-]+)?\n([\s\S]*?)```/.exec(result);
                 if (codeMatch && codeMatch[1]) {
-                    const extractedCode = codeMatch[1].trim();
-                    state.codeBackupBeforeAiFix = getStudioCodeValue();
-                    setStudioCodeValue(extractedCode);
-                    runStudioCode();
+                    const proposedCode = codeMatch[1].trim();
+                    const encodedProposed = encodeURIComponent(proposedCode);
 
-                    const banner = document.getElementById('codeFixConfirmBanner');
-                    if (banner) banner.classList.remove('hidden');
-                    showToast('AI proposed fixes applied in-place! Choose Yes to keep or No to discard.');
+                    aiBubble.innerHTML = `
+                        <div class="leading-relaxed whitespace-pre-wrap">${escapeHtml(result)}</div>
+                        <div class="pt-2 border-t border-theme-border flex items-center justify-end gap-2">
+                            <button onclick="copyProposedCode(this, '${encodedProposed}')" class="px-2.5 py-1 rounded bg-theme-surface hover:bg-theme-border border border-theme-border text-theme-text text-[11px] transition flex items-center gap-1">
+                                <i class="fa-regular fa-copy"></i> Copy
+                            </button>
+                            <button onclick="previewAndApplyProposedCode('${encodedProposed}')" class="px-3 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium text-[11px] transition flex items-center gap-1 shadow-sm">
+                                <i class="fa-solid fa-code-compare"></i> Apply to Editor
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    aiBubble.innerHTML = `<div class="leading-relaxed whitespace-pre-wrap">${escapeHtml(result)}</div>`;
                 }
             } catch (err) {
                 aiBubble.innerHTML = `<span class="text-rose-400"><i class="fa-solid fa-circle-exclamation mr-1"></i> ${escapeHtml(err.message)}</span>`;
             } finally {
+                saveCurrentCodeAiChat();
                 stream.scrollTop = stream.scrollHeight;
             }
+        }
+
+        function copyProposedCode(btn, encodedCode) {
+            const raw = decodeURIComponent(encodedCode);
+            copyTextToClipboard(raw);
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> Copied';
+            setTimeout(() => { btn.innerHTML = orig; }, 1800);
+            showToast('Proposed code copied to clipboard!');
+        }
+
+        function previewAndApplyProposedCode(encodedCode) {
+            const proposedCode = decodeURIComponent(encodedCode);
+            // Save current code to backup before temporary preview
+            state.codeBackupBeforeAiFix = getStudioCodeValue();
+            
+            // Temporary load into editor for live preview
+            setStudioCodeValue(proposedCode);
+            runStudioCode();
+
+            const banner = document.getElementById('codeFixConfirmBanner');
+            if (banner) banner.classList.remove('hidden');
+            showToast('Proposed code loaded for preview. Choose Yes to keep or No to revert!');
         }
 
         function acceptAiCodeFix() {
@@ -4369,7 +4403,7 @@ Always output fixed or updated code in standard markdown code blocks (\`\`\`html
             const banner = document.getElementById('codeFixConfirmBanner');
             if (banner) banner.classList.add('hidden');
             saveCurrentCodeContent();
-            showToast('AI code fix accepted!');
+            showToast('AI code fix accepted and saved!');
         }
 
         function discardAiCodeFix() {
@@ -4377,10 +4411,11 @@ Always output fixed or updated code in standard markdown code blocks (\`\`\`html
                 setStudioCodeValue(state.codeBackupBeforeAiFix);
                 state.codeBackupBeforeAiFix = null;
                 runStudioCode();
+                saveCurrentCodeContent();
             }
             const banner = document.getElementById('codeFixConfirmBanner');
             if (banner) banner.classList.add('hidden');
-            showToast('AI fix discarded. Original code restored.');
+            showToast('AI fix discarded. Original code restored!');
         }
 
         // ==========================================
@@ -4532,36 +4567,62 @@ Always output fixed or updated code in standard markdown code blocks (\`\`\`html
 
                 // Finalize thinking state
                 statusEl.textContent = 'Completed';
-                bodyEl.textContent = `Response synthesized in ${timerEl.textContent}. Tokens processed cleanly.`;
+                timerEl.textContent = `${Math.floor((Date.now() - startTime) / 1000)}s`;
                 thinkingContainer.querySelector('.fa-brain').classList.remove('thinking-pulse');
+                if (actionBar) actionBar.classList.remove('hidden');
 
-                // Save to history
-                if (currentSession) {
-                    currentSession.messages.push({
+                const session = getCurrentSession();
+                if (session) {
+                    session.messages.push({
                         role: 'model',
                         text: fullOutput,
-                        thinking: bodyEl.textContent
+                        thinking: bodyEl.textContent || 'Model generation complete'
                     });
-                    if (currentSession.title === 'New conversation' && text) {
-                        currentSession.title = text.substring(0, 32);
-                    }
                     saveSessionsToStorage();
                 }
-
-                if (actionBar) actionBar.classList.remove('hidden');
             } catch (err) {
-                if (err.name === 'AbortError') {
-                    statusEl.textContent = 'Stopped by user';
-                } else {
-                    statusEl.textContent = 'Error processing request';
+                if (err.name !== 'AbortError') {
+                    statusEl.textContent = 'Error';
                     textContainer.innerHTML = `<div class="p-3 bg-rose-950/40 border border-rose-800/40 text-rose-200 text-xs">${escapeHtml(err.message)}</div>`;
                 }
             } finally {
                 clearInterval(timerInterval);
                 textContainer.classList.remove('typing-cursor');
                 setGeneratingUI(false);
-                state.abortController = null;
                 chatStream.scrollTop = chatStream.scrollHeight;
+            }
+        }
+
+        function switchWorkspaceTool(toolId) {
+            state.currentWsTool = toolId;
+            document.querySelectorAll('.tool-subpanel').forEach(panel => {
+                panel.classList.add('hidden');
+                panel.classList.remove('flex');
+            });
+            document.querySelectorAll('.ws-nav-btn').forEach(btn => {
+                btn.className = 'ws-nav-btn px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 text-theme-muted hover:text-theme-text transition';
+            });
+
+            const activePanel = document.getElementById(`toolPanel_${toolId}`);
+            const activeBtn = document.getElementById(`wsToolBtn_${toolId}`);
+
+            if (activePanel) {
+                activePanel.classList.remove('hidden');
+                activePanel.classList.add('flex');
+            }
+            if (activeBtn) {
+                activeBtn.className = 'ws-nav-btn px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 bg-blue-600 text-white shadow-sm transition';
+            }
+
+            if (toolId === 'paint') {
+                setTimeout(resizePaintCanvas, 50);
+            } else if (toolId === 'code') {
+                setTimeout(() => {
+                    initStudioCodeMirror();
+                    if (studioCodeMirror) {
+                        studioCodeMirror.refresh();
+                    }
+                }, 50);
             }
         }
 
@@ -4585,12 +4646,15 @@ Always output fixed or updated code in standard markdown code blocks (\`\`\`html
             loadGeneratedFilesFromStorage();
             loadSessionsFromStorage();
             loadCurrentDocContent();
+            loadCurrentCodeAiChat();
 
             // Default view is Chat
             switchMainView('chat');
 
-            // Initialize Google OAuth Token Client with Provided Client ID
-            initGoogleAuthClient();
+            // Initialize Google OAuth Token Client with Provided Client ID if already available
+            if (window.google && window.google.accounts) {
+                initGoogleAuthClient();
+            }
 
             // Initialize Paint Studio Canvas
             initPaintCanvas();

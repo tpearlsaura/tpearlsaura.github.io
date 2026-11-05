@@ -1576,19 +1576,21 @@
             advanced: JSON.parse(localStorage.getItem('son_advanced_config') || JSON.stringify({
                 imageEngine: 'nano-banana',
                 imageRatio: '1:1',
-                temperature: 1,
-                systemPrompt: `You are TPearls AI - an elite, versatile, and highly capable AI assistant and software engineer.
+                temperature: 0.7,
+                systemPrompt: `You are TPearls AI - an intelligent, helpful, and natural conversation assistant.
 
-1. Language & Interaction:
-- Always reply in the user's preferred language (English by default, or Vietnamese if requested).
-- Be direct, friendly, and professional.
+CRITICAL FORMATTING RULES:
+1. TEXT RESPONSES:
+- When the user asks for essays, explanations, conversations, summaries, creative writing, or answers to questions, ALWAYS respond in clean, natural Human Text (standard Markdown).
+- NEVER wrap ordinary text answers inside raw HTML tags (such as <html>, <body>, <div>, <p>, etc.).
 
-2. Code & File Generation (Crucial):
-- Whenever asked to write code, build an app, or create files, provide complete, clean, modular code.
-- Always use standard markdown file blocks with the naming format: \`\`\`language:filename.extension (e.g., \`\`\`html:index.html, \`\`\`python:main.py, \`\`\`javascript:app.js).
+2. CODE ONLY WHEN EXPLICITLY REQUESTED:
+- Only provide HTML/JS/CSS code blocks if the user specifically asks to write code, build a webpage, or create an application.
+- Format requested code strictly as: \`\`\`language:filename.ext (e.g. \`\`\`html:index.html).
 
-3. General Tasks:
-- Deliver concise, well-structured responses using bullet points for readability.`
+3. TONE & LANGUAGE:
+- Match the user's language (Vietnamese or English).
+- Be polite, direct, clear, and engaging.`
             })),
 
             attachments: [],
@@ -1717,6 +1719,23 @@
         function cleanRawMathText(rawText) {
             if (!rawText) return '';
             let text = rawText;
+
+            // Tự động gỡ bỏ thẻ HTML bọc ngoài không mong muốn nếu AI xuất nhầm văn bản dạng HTML
+            if (/^\s*<!DOCTYPE html>|^\s*<html[\s>]/i.test(text)) {
+                // Nếu không nằm trong code block mà là toàn bộ response bị bọc html
+                if (!text.includes('```')) {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = text;
+                    const bodyContent = tempDiv.querySelector('body')?.innerHTML || tempDiv.innerHTML;
+                    text = bodyContent
+                        .replace(/<p\b[^>]*>/gi, '')
+                        .replace(/<\/p>/gi, '\n\n')
+                        .replace(/<br\s*[\/]?>/gi, '\n')
+                        .replace(/<h[1-6]\b[^>]*>(.*?)<\/h[1-6]>/gi, '### $1\n')
+                        .replace(/<[^>]+>/g, '')
+                        .trim();
+                }
+            }
 
             // Chuyển đổi khối \[ ... \] và \( ... \) thành $$...$$ và $...$
             text = text
@@ -2736,7 +2755,7 @@
             stream.appendChild(userBubble);
 
             const aiBubble = document.createElement('div');
-            aiBubble.className = 'p-2.5 rounded-xl bg-theme-surface border border-theme-border text-theme-text mr-auto max-w-[95%] text-[11px] space-y-2';
+            aiBubble.className = 'doc-ai-bubble p-2.5 rounded-xl bg-theme-surface border border-theme-border text-theme-text mr-auto max-w-[95%] text-[11px] space-y-2';
             aiBubble.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5 text-blue-400"></i> Composing & refining...';
             stream.appendChild(aiBubble);
             stream.scrollTop = stream.scrollHeight;
@@ -2751,7 +2770,7 @@ ${docContent.substring(0, 3000)}
 User Request:
 ${text}
 
-Deliver high quality prose or recommendations. Include an HTML block if providing text to insert into the document.`;
+IMPORTANT: Reply in natural, polished text or bullet points. DO NOT wrap your answer in HTML tags (like <html>, <div>, <p>). Only return pure refined text.`;
 
                 const result = await dispatchWorkspaceAiQuery(combinedPrompt, [], 'auto');
 
@@ -2771,7 +2790,7 @@ Deliver high quality prose or recommendations. Include an HTML block if providin
         }
 
         function insertAiTextIntoDoc(btn) {
-            const container = btn.closest('.p-2.5');
+            const container = btn.closest('.doc-ai-bubble') || btn.closest('div[class*="rounded-xl"]');
             if (!container) return;
             const text = container.querySelector('.whitespace-pre-wrap')?.innerText || '';
             const editor = document.getElementById('richDocEditor');
@@ -2779,6 +2798,7 @@ Deliver high quality prose or recommendations. Include an HTML block if providin
                 const p = document.createElement('p');
                 p.textContent = text;
                 editor.appendChild(p);
+                saveCurrentDocContent();
                 showToast('Text inserted into document!');
             }
         }

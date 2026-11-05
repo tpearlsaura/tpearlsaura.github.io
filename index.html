@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập bằng Google - Tpearlsaura</title>
+    <!-- Nhúng thư viện JavaScript chuẩn của Google -->
+    <script src="https://google.com" async defer></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .login-box {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        /* Khu vực hiển thị thông tin sau khi đăng nhập */
+        .profile-card {
+            display: none;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #eceff1;
+            animation: fadeIn 0.5s ease;
+        }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            border: 3px solid #4285f4;
+        }
+        .user-name {
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .user-email {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="welcome-section">
+            <h1>Chào mừng bạn</h1>
+            <p>Vui lòng đăng nhập để trải nghiệm hệ thống</p>
+            
+            <!-- 1. CẤU HÌNH GOOGLE CLIENT ID (BẮT BUỘC THAY CHUỖI ĐỎ DƯỚI ĐÂY) -->
+            <div id="g_id_onload"
+                 data-client_id="://googleusercontent.com"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+
+            <!-- 2. NƠI HIỂN THỊ NÚT ĐĂNG NHẬP -->
+            <div class="login-box">
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="rectangular"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left">
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. GIAO DIỆN HIỂN THỊ THÔNG TIN USER KHI ĐĂNG NHẬP THÀNH CÔNG -->
+        <div id="profile-section" class="profile-card">
+            <img id="user-avatar" class="avatar" src="" alt="Avatar">
+            <div id="user-name" class="user-name">Tên hiển thị</div>
+            <div id="user-email" class="user-email">Email</div>
+            <button class="logout-btn" onclick="logout()">Đăng xuất</button>
+        </div>
+    </div>
+
+    <script>
+        // 4. HÀM XỬ LÝ SAU KHI ĐĂNG NHẬP THÀNH CÔNG
+        function handleCredentialResponse(response) {
+            try {
+                // Giải mã Token JWT nhận được từ Google để lấy profile
+                const credentialToken = response.credential;
+                const base64Url = credentialToken.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                // Chuyển dữ liệu sang dạng Object JSON
+                const user = JSON.parse(jsonPayload);
+                
+                // Điền dữ liệu vào giao diện công khai
+                document.getElementById('user-avatar').src = user.picture;
+                document.getElementById('user-name').innerText = user.name;
+                document.getElementById('user-email').innerText = user.email;
+
+                // Ẩn phần đăng nhập, hiện phần thông tin cá nhân lên
+                document.getElementById('welcome-section').style.display = 'none';
+                document.getElementById('profile-section').style.display = 'block';
+
+                console.log("Dữ liệu đầy đủ từ Google:", user);
+            } catch (error) {
+                console.error("Lỗi giải mã token:", error);
+                alert("Đăng nhập thất bại, vui lòng thử lại!");
+            }
+        }
+
+        // 5. HÀM XỬ LÝ ĐĂNG XUẤT
+        function logout() {
+            // Tải lại trang để xóa trạng thái và hiển thị lại nút đăng nhập ban đầu
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
